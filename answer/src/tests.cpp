@@ -118,18 +118,25 @@ TEST_CASE("Board - 第一次點擊安全初始化測試") {
 }
 
 TEST_CASE("Board - 遞迴/連鎖翻開空地測試") {
-    // 建立 3x3 棋盤，只有 1 顆地雷在 (0, 0)
-    Board b(3, 3, 1);
+    // 建立 5x5 棋盤，擺放 1 顆地雷。
+    // 依據安全第一步規則，當寬高為 5x5 且雷數為 1 時，寬高-9 (16) >= 雷數 (1)，
+    // 系統會 100% 保證起點 (2, 2) 及其周圍 8 個鄰近格子都不會有雷（雷一定會擺在最外圈）。
+    // 這樣可以 100% 確保 (2, 2) 的鄰近地雷數為 0，且點擊後會連鎖翻開周圍的所有格子！
+    Board b(5, 5, 1);
     
-    // 第一次點擊 (2, 2)
+    // 第一次點擊正中心 (2, 2)
     b.reveal(2, 2);
 
-    // 既然 (0, 0) 是唯一可能的地雷，(2, 2) 及其周圍鄰居應該都是 0 地雷
-    // (2, 2) 翻開後，應該會連鎖翻開其所有安全鄰近格子
+    // 正中心與其周圍 8 個格子都應該被翻開
     REQUIRE(b.getCell(2, 2).getIsRevealed());
-    REQUIRE(b.getCell(1, 2).getIsRevealed());
-    REQUIRE(b.getCell(2, 1).getIsRevealed());
     REQUIRE(b.getCell(1, 1).getIsRevealed());
+    REQUIRE(b.getCell(1, 2).getIsRevealed());
+    REQUIRE(b.getCell(1, 3).getIsRevealed());
+    REQUIRE(b.getCell(2, 1).getIsRevealed());
+    REQUIRE(b.getCell(2, 3).getIsRevealed());
+    REQUIRE(b.getCell(3, 1).getIsRevealed());
+    REQUIRE(b.getCell(3, 2).getIsRevealed());
+    REQUIRE(b.getCell(3, 3).getIsRevealed());
 }
 
 TEST_CASE("Board - 踩雷輸掉與翻開非雷獲勝測試") {
