@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <fstream>
 #include "httplib.h"
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 #include "Board.h"
 
 using json = nlohmann::json;
