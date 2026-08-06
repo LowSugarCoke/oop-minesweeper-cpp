@@ -3,11 +3,22 @@
 #include <memory>
 #include <stdexcept>
 #include <fstream>
+#include <thread>
+#include <chrono>
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
 #include "httplib.h"
 #include <nlohmann/json.hpp>
 #include "Board.h"
 
 using json = nlohmann::json;
+
+static char* g_argv0 = nullptr;
+static char** g_argv = nullptr;
+static volatile bool g_should_restart = false;
 
 static std::unique_ptr<Board> g_board = nullptr;
 static std::string g_init_error = "";
@@ -106,7 +117,10 @@ std::string findStaticFile(const std::string& path) {
     return "";
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    g_argv0 = argv[0];
+    g_argv = argv;
+
     httplib::Server svr;
 
     // Route: GET /api/state
@@ -184,6 +198,47 @@ int main() {
         res.set_content(jsonStr, "application/json");
     });
 
+    // Route: POST /api/dev/rebuild
+    svr.Post("/api/dev/rebuild", [](const httplib::Request&, httplib::Response& res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        
+        FILE* pipe = popen("make 2>&1", "r");
+        if (!pipe) {
+            json errJson;
+            errJson["error"] = "Failed to run 'make' compiler command";
+            res.status = 500;
+            res.set_content(errJson.dump(), "application/json");
+            return;
+        }
+
+        char buffer[256];
+        std::string makeOutput = "";
+        while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+            makeOutput += buffer;
+        }
+        int exitCode = pclose(pipe);
+
+        if (exitCode != 0) {
+            json errJson;
+            errJson["error"] = "編譯失敗 (Compilation failed):\n" + makeOutput;
+            res.status = 400;
+            res.set_content(errJson.dump(), "application/json");
+            return;
+        }
+
+        g_should_restart = true;
+        
+        json successJson;
+        successJson["success"] = true;
+        successJson["message"] = "Rebuild successful! Restarting server...";
+        res.set_content(successJson.dump(), "application/json");
+
+        std::thread([](httplib::Server* server) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            server->stop();
+        }, &svr).detach();
+    });
+
     // Serve Static Files manually or via mount point
     // Since we want robust fallback, let's write a catch-all route for static files!
     svr.Get("/(.*)", [](const httplib::Request& req, httplib::Response& res) {
@@ -217,5 +272,13 @@ int main() {
 
     std::cout << "Server starting on http://localhost:8080..." << std::endl;
     svr.listen("0.0.0.0", 8080);
+
+    if (g_should_restart) {
+        std::cout << "Re-executing newly compiled binary: " << g_argv0 << "..." << std::endl;
+        execv(g_argv0, g_argv);
+        perror("execv failed");
+        return 1;
+    }
+
     return 0;
 }

@@ -73,6 +73,10 @@
         <div class="summary">
           <span class="chip pass" id="passChip">0 通過</span>
           <span class="chip fail" id="failChip">0 失敗</span>
+          <button class="rebuild-btn" id="rebuildBtn">
+            <span class="spinner"></span>
+            <span class="rebuild-label">重新編譯 C++</span>
+          </button>
           <button class="run-btn" id="runBtn">
             <span class="spinner"></span>
             <span class="run-label">執行測試</span>
@@ -84,7 +88,7 @@
       </div>
     </div>
 
-    <p class="footnote">提示：Codespaces 環境下，修改 C++ 程式碼後，需回到終端機手動 Ctrl+C 終止 <code>./backend_adapter</code>，並重新 <code>make && ./backend_adapter</code>，隨後重新整理（F5）此瀏覽器頁面，變更才會生效。</p>
+    <p class="footnote">提示：你可以直接點選上方 **「重新編譯 C++」** 按鈕，網頁會自動調用後端 <code>make</code> 重新編譯你的 C++ 代碼，並在編譯成功後**自動重啟伺服器與重新整理網頁**！你也可以在終端機手動 <code>Ctrl+C</code> 終止、<code>make && ./backend_adapter</code> 重啟並手動重新整理分頁。</p>
   </div>
 
   <script src="app.js"></script>

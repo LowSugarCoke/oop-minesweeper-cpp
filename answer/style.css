@@ -322,6 +322,27 @@ body {
 .chip.pass { color: var(--pass); background: var(--pass-bg); }
 .chip.fail { color: var(--fail); background: var(--fail-bg); }
 
+.rebuild-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+}
+.rebuild-btn:hover { background: var(--border); }
+.rebuild-btn:active { transform: scale(0.97); }
+.rebuild-btn:focus-visible { outline: 2px solid var(--border); outline-offset: 2px; }
+.rebuild-btn[disabled] { opacity: 0.6; cursor: default; }
+.rebuild-btn.loading .spinner { display: inline-block; }
+.rebuild-btn.loading .rebuild-label { display: none; }
+
 .run-btn {
   display: inline-flex;
   align-items: center;

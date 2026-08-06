@@ -23,6 +23,7 @@ const errorMessageEl = document.getElementById("errorMessage");
 const errorCloseBtnEl = document.getElementById("errorCloseBtn");
 
 const runBtnEl = document.getElementById("runBtn");
+const rebuildBtnEl = document.getElementById("rebuildBtn");
 const passChipEl = document.getElementById("passChip");
 const failChipEl = document.getElementById("failChip");
 const listEl = document.getElementById("list");
@@ -38,6 +39,7 @@ async function init() {
 function setupEventListeners() {
   presetSelectEl.addEventListener("change", handlePresetChange);
   resetBtnEl.addEventListener("click", () => resetGame());
+  rebuildBtnEl.addEventListener("click", handleRebuild);
   errorCloseBtnEl.addEventListener("click", hideError);
   runBtnEl.addEventListener("click", () => runTests());
 
@@ -288,6 +290,64 @@ function renderTestPanel(data) {
       }
     });
   });
+}
+
+// Handle Remake and Server self-restart
+async function handleRebuild() {
+  hideError();
+  rebuildBtnEl.classList.add("loading");
+  rebuildBtnEl.disabled = true;
+  runBtnEl.disabled = true;
+
+  const originalLabel = rebuildBtnEl.querySelector(".rebuild-label").textContent;
+  
+  try {
+    const res = await fetch(`${API_URL}/api/dev/rebuild`, { method: "POST" });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || `編譯失敗，HTTP 狀態碼 ${res.status}`);
+    }
+
+    // Success! Show status and wait for server to self-restart
+    rebuildBtnEl.querySelector(".rebuild-label").textContent = "重啟中...";
+    rebuildBtnEl.querySelector(".rebuild-label").style.display = "inline";
+    
+    await sleep(1000); // Wait 1 second to let process re-execute
+    
+    // Poll /api/state to confirm server is back up
+    let isBackUp = false;
+    for (let i = 0; i < 5; ++i) {
+      try {
+        const check = await fetch(`${API_URL}/api/state`);
+        if (check.ok) {
+          isBackUp = true;
+          break;
+        }
+      } catch (_) {
+        // Silent catch: server is restarting
+      }
+      await sleep(300);
+    }
+
+    if (isBackUp) {
+      window.location.reload();
+    } else {
+      throw new Error("編譯成功且伺服器已重啟，但伺服器未能在 2.5 秒內重新上線，請手動整理網頁。");
+    }
+  } catch (err) {
+    console.error("重新編譯失敗:", err);
+    showError(err.message);
+    
+    // Restore button state
+    rebuildBtnEl.classList.remove("loading");
+    rebuildBtnEl.disabled = false;
+    runBtnEl.disabled = false;
+    rebuildBtnEl.querySelector(".rebuild-label").textContent = originalLabel;
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Start everything
