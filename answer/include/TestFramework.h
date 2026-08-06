@@ -39,10 +39,13 @@ struct TestRegisterHelper {
     }
 };
 
+#define TEST_CONCAT_INNER(x, y) x##y
+#define TEST_CONCAT(x, y) TEST_CONCAT_INNER(x, y)
+
 #define TEST_CASE(name) \
-    static void test_func_##__LINE__(); \
-    static TestRegisterHelper test_helper_##__LINE__(name, test_func_##__LINE__); \
-    static void test_func_##__LINE__()
+    static void TEST_CONCAT(test_func_, __LINE__)(); \
+    static TestRegisterHelper TEST_CONCAT(test_helper_, __LINE__)(name, TEST_CONCAT(test_func_, __LINE__)); \
+    static void TEST_CONCAT(test_func_, __LINE__)()
 
 class TestAssertionException : public std::exception {
 private:
