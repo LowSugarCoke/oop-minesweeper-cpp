@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>踩地雷 OOP 練習套件 — Minesweeper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <!-- Header Meta -->
+    <div class="meta">
+      <span class="eyebrow">OOP Practice · C++</span>
+      <h1>踩地雷 練習與實戰</h1>
+      <p>這是一個專為學習物件導向程式設計（OOP）設計的踩地雷遊戲。左側（或上方）是可玩的瀏覽器遊戲畫面，底端是內嵌的測試面板。依序實作 <code>Cell.cpp</code> 與 <code>Board.cpp</code> 中引導的步驟，並隨時點擊「執行測試」確認邏輯是否正確！</p>
+    </div>
+
+    <!-- Error Alert Toast (Hidden by default) -->
+    <div id="errorAlert" class="error-alert">
+      <div class="error-alert-icon">⚠️</div>
+      <div class="error-alert-content">
+        <strong id="errorTitle">C++ 邏輯錯誤 / 異常拋出</strong>
+        <p id="errorMessage">未定義的例外訊息</p>
+      </div>
+      <button id="errorCloseBtn" class="error-close-btn">&times;</button>
+    </div>
+
+    <!-- Main Board Game View -->
+    <div class="game-container">
+      <div class="game-header">
+        <div class="controls-preset">
+          <label for="presetSelect">選擇難度：</label>
+          <select id="presetSelect">
+            <option value="beginner" selected>初級 (9x9, 10 雷)</option>
+            <option value="intermediate">中級 (16x16, 40 雷)</option>
+            <option value="custom">自訂難度</option>
+          </select>
+        </div>
+
+        <div id="customControls" class="controls-custom">
+          <div>
+            <label for="inputWidth">寬：</label>
+            <input type="number" id="inputWidth" value="9" min="1" max="50">
+          </div>
+          <div>
+            <label for="inputHeight">高：</label>
+            <input type="number" id="inputHeight" value="9" min="1" max="50">
+          </div>
+          <div>
+            <label for="inputMines">雷：</label>
+            <input type="number" id="inputMines" value="10" min="1" max="2400">
+          </div>
+        </div>
+      </div>
+
+      <div class="game-panel">
+        <div class="game-status-bar">
+          <div class="status-counter" id="minesCounter">💣 010</div>
+          <button class="reset-btn" id="resetBtn">😀</button>
+          <div class="status-message" id="gameStatusMessage">遊戲準備中...</div>
+        </div>
+
+        <div class="grid-scroll-wrapper">
+          <div class="minesweeper-grid" id="minesweeperGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shared Test Panel -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>單元測試結果</h2>
+        <div class="summary">
+          <span class="chip pass" id="passChip">0 通過</span>
+          <span class="chip fail" id="failChip">0 失敗</span>
+          <button class="run-btn" id="runBtn">
+            <span class="spinner"></span>
+            <span class="run-label">執行測試</span>
+          </button>
+        </div>
+      </div>
+      <div class="list" id="list">
+        <div class="empty-hint">尚未執行過測試，點選「執行測試」按鈕以開始。</div>
+      </div>
+    </div>
+
+    <p class="footnote">提示：Codespaces 環境下，修改 C++ 程式碼後，需回到終端機手動 Ctrl+C 終止 <code>./backend_adapter</code>，並重新 <code>make && ./backend_adapter</code>，隨後重新整理（F5）此瀏覽器頁面，變更才會生效。</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

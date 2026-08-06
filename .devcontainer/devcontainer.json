@@ -1,0 +1,20 @@
+{
+  "name": "C++ Minesweeper OOP Practice",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-debian-12",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Minesweeper GUI",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools"
+      ]
+    }
+  },
+  "postCreateCommand": "mkdir -p build && cd build && cmake .. && make"
+}
