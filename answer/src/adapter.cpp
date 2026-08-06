@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
     });
 
     // Route: POST /api/dev/rebuild
-    svr.Post("/api/dev/rebuild", [](const httplib::Request&, httplib::Response& res) {
+    svr.Post("/api/dev/rebuild", [&svr](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         
         FILE* pipe = popen("make 2>&1", "r");
